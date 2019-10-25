@@ -124,7 +124,7 @@ Address TryRetrieveAddrFromStart(ParseAPI::CodeObject &code_object,
       }
 
       auto mov_inst = std::prev(call, 1 + index);
-      auto second_operand = mov_inst->second.get()->getOperand(1);
+      auto second_operand = mov_inst->second.getOperand(1);
 
 
       // in -pie binaries it will be calculated using lea
@@ -661,7 +661,7 @@ CFGWriter::WriteBlock(ParseAPI::Block *block, ParseAPI::Function *func,
   Address ip = block->start();
 
   for (auto p = instructions.begin(); p != instructions.end();) {
-    InstructionAPI::Instruction *instruction = p->second;
+    InstructionAPI::Instruction instruction = p->second;
 
     WriteInstruction(instruction, ip, cfg_block, (++p) == instructions.end());
     ip += instruction->size();
