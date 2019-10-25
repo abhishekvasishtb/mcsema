@@ -663,8 +663,8 @@ CFGWriter::WriteBlock(ParseAPI::Block *block, ParseAPI::Function *func,
   for (auto p = instructions.begin(); p != instructions.end();) {
     InstructionAPI::Instruction instruction = p->second;
 
-    WriteInstruction(instruction, ip, cfg_block, (++p) == instructions.end());
-    ip += instruction->size();
+    WriteInstruction(&instruction, ip, cfg_block, (++p) == instructions.end());
+    ip += instruction.size();
   }
 
   ResolveOffsetTable(successors, cfg_block, offset_tables);
