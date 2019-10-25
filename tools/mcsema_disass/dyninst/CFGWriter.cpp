@@ -116,8 +116,8 @@ Address TryRetrieveAddrFromStart(ParseAPI::CodeObject &code_object,
       auto call = std::prev(instructions.end(), 1);
 
       // Just some sanity check that we are in correct function
-      if (call->second->getCategory() != InstructionAPI::c_CallInsn &&
-          call->second->getCategory() != InstructionAPI::c_BranchInsn) {
+      if (call->second.getCategory() != InstructionAPI::c_CallInsn &&
+          call->second.getCategory() != InstructionAPI::c_BranchInsn) {
         LOG(WARNING) << "Instruction at 0x" << std::hex << call->first
                      << " is not call nor branching";
         return 0;
@@ -130,11 +130,11 @@ Address TryRetrieveAddrFromStart(ParseAPI::CodeObject &code_object,
       // in -pie binaries it will be calculated using lea
       // and it generates unintuitive AST
       auto rip = mov_inst->first;
-      if (mov_inst->second->getOperation().getID() == entryID::e_lea) {
-        rip += mov_inst->second->size();
+      if (mov_inst->second.getOperation().getID() == entryID::e_lea) {
+        rip += mov_inst->second.size();
       }
       auto offset =
-        TryEval(second_operand.getValue().get(), rip, mov_inst->second->size());
+        TryEval(second_operand.getValue().get(), rip, mov_inst->second.size());
 
       if (!offset) {
         LOG(WARNING) << "Could not eval basic start addresses!";
@@ -615,8 +615,8 @@ CFGWriter::WriteBlock(ParseAPI::Block *block, ParseAPI::Function *func,
       auto rip = std::prev(instructions.end())->first;
 
       // Try to compute succ manually, as it can happen that ParseAPI returns -1
-      auto manual = TryEval(last_inst->getOperand(0).getValue().get(),
-                            rip, last_inst->size());
+      auto manual = TryEval(last_inst.getOperand(0).getValue().get(),
+                            rip, last_inst.size());
 
       // We cannot statically tell anything about this edge
       if (!manual && next == -1) {
@@ -661,7 +661,7 @@ CFGWriter::WriteBlock(ParseAPI::Block *block, ParseAPI::Function *func,
   Address ip = block->start();
 
   for (auto p = instructions.begin(); p != instructions.end();) {
-    InstructionAPI::Instruction *instruction = p->second.get();
+    InstructionAPI::Instruction *instruction = p->second;
 
     WriteInstruction(instruction, ip, cfg_block, (++p) == instructions.end());
     ip += instruction->size();
