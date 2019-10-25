@@ -110,7 +110,7 @@ Address TryRetrieveAddrFromStart(ParseAPI::CodeObject &code_object,
 
       auto entry_block = func->entry();
 
-      using Insn = std::map<Offset, InstructionAPI::Instruction::Ptr>;
+      using Insn = std::map<Offset, InstructionAPI::Instruction>;
       Insn instructions;
       entry_block->getInsns(instructions);
       auto call = std::prev(instructions.end(), 1);
@@ -475,10 +475,10 @@ void CFGWriter::SweepStubs() {
     if (section_m.IsInRegions({".plt.got"}, func->entry()->start())) {
       auto inst =  func->entry()->getInsn(func->addr());
 
-      if (inst->getCategory() == InstructionAPI::c_BranchInsn) {
+      if (inst.getCategory() == InstructionAPI::c_BranchInsn) {
         auto xref_addr = TryEval(
-            inst->getOperand(0).getValue().get(),
-            func->addr(), inst->size());
+            inst.getOperand(0).getValue().get(),
+            func->addr(), inst.size());
         auto cfg_xref = ctx.data_xrefs.find(*xref_addr);
         if (cfg_xref == ctx.data_xrefs.end()) {
           continue;
@@ -597,7 +597,7 @@ CFGWriter::WriteBlock(ParseAPI::Block *block, ParseAPI::Function *func,
   cfg_block->set_ea(block->start());
 
 
-  std::map<Offset, InstructionAPI::Instruction::Ptr> instructions;
+  std::map<Offset, InstructionAPI::Instruction> instructions;
   block->getInsns(instructions);
 
   std::set<Address> successors;
